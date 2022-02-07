@@ -7,14 +7,14 @@ criaConj :: Int -> Int -> Bool -> Bool -> IO Uniao
 criaConj a b c d = do
     return [[a+(fromEnum c), a+(fromEnum c)+1 .. b-(fromEnum d)]]
 
-auxiliacontem :: Int -> Conjunto -> Bool
-auxiliacontem x y
+auxcontem :: Int -> Conjunto -> Bool
+auxcontem x y
     |x `elem` y = True
     |otherwise = False
 contem :: Int -> Int -> Uniao -> Bool -- Primeiro "Int" é o inicializador e deve sempre ter entrada 0
 contem x y z
-    |auxiliacontem y (z!!x) == True = True
-    |auxiliacontem y (z!!x) == False && x+1 < length z = contem (x+1) (y) (z)
+    |auxcontem y (z!!x) == True = True
+    |auxcontem y (z!!x) == False && x+1 < length z = contem (x+1) (y) (z)
     |otherwise = False
 
 intercepta :: Uniao -> Uniao -> Bool
@@ -25,11 +25,19 @@ intercepta x y
     |contem 0 (last (last y)) x == True = True
     |otherwise = False
     
+size :: Int -> Int -> Uniao -> Int
+size x y z
+    |y == length z = x
+    |otherwise = size (x + (length (z!!y))) (y+1) z
 media :: Int -> Int -> Conjunto -> Float
 media _ _ [] = 0
 media x y z
     |y == length z = (fromIntegral x)/(fromIntegral (length z))
     |otherwise = media (x+(z!!y)) (y+1) (z)
+mediaUniao :: Int -> Int -> Int -> Uniao -> Float
+mediaUniao w x y z
+    |y == length z = (fromIntegral x)/(fromIntegral (size 0 0 z))
+    |otherwise = mediaUniao (w+1) (x+(sum (z!!w))) (y+1) z
     
 produto :: Uniao -> Uniao -> IO Uniao
 produto x y = do
@@ -64,3 +72,4 @@ f <- criaConj 25 45 True False
 print(f)
 g <- uniao e f
 print(g)
+print(mediaUniao 0 0 0 e)
